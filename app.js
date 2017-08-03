@@ -1,11 +1,18 @@
-const express      = require('express');
-const path         = require('path');
-const favicon      = require('serve-favicon');
-const logger       = require('morgan');
-const cookieParser = require('cookie-parser');
-const bodyParser   = require('body-parser');
-const layouts      = require('express-ejs-layouts');
-const mongoose     = require('mongoose');
+const express       = require('express');
+const path          = require('path');
+const favicon       = require('serve-favicon');
+const logger        = require('morgan');
+const cookieParser  = require('cookie-parser');
+const bodyParser    = require('body-parser');
+const layouts       = require('express-ejs-layouts');
+const mongoose      = require('mongoose');
+const passport      = require('passport');
+const session       = require('express-session');
+const cors          = require('cors');
+const LocalStrategy = require("passport-local").Strategy;
+
+require('./config/passport-config');
+
 
 
 mongoose.connect('mongodb://localhost/home-express');
@@ -27,6 +34,19 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(layouts);
+app.use(session({
+  secret: 'sessionsSecret',
+  resave: true,
+  saveUninitialized: true
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.use(cors({
+  credentials: true,
+  origin: [ 'http://localhost:4200']
+}));
+
 
 const index = require('./routes/index');
 app.use('/', index);
